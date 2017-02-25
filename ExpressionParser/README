@@ -1,0 +1,184 @@
+Vijaeac Cristian-Octavian 325CB
+
+
+1)Clasa "Verifications"-clasa care verifica daca un element din expresie/arbore este numar,variabila,operatie,daca
+o expresie este de atribuire sau daca un nod este frunza
+	-isAttribution=metoda care verifica daca expresia este una de atribuire
+		      =preia radacina arborelui si daca ceea ce se afla in copilul stang este o variabila iar ceea ce se afla
+			in copilul drept este o frunza,inseamna ca avem o atribuire
+	-isVariable=metoda care verifica daca un element al expresiei este o variabila
+		   =separa string-ul primit in char-uri
+		   =verifica mai intai daca e numar,iar daca da se iese din metoda
+		   =daca gasim + sau -,inseamna ca avem un operator unar si trecem peste
+		   =preia fieacare caracter si verifica daca este litera/cifra si nu altceva
+		   =daca se ajunge la final,variabila boolean ramane true si inseamna ca avem o variabila
+	-isNumber=metoda care verifica daca un element al expresiei este un numar
+		 =separa string-ul primit in char-uri
+		 =daca gasim + sau -,inseamna ca avem un operator unar si trecem peste
+		 =preia fieacare caracter si verifica daca este cifra si nu altceva
+		 =daca se ajunge la final,variabila boolean ramane true si inseamna ca avem un numar
+	-isOperation=metoda care verifica daca un element al expresiei este o operatie
+		    =se verifica daca elementul este egal cu un operator aritmetic(+,-,*,>,?,:)
+		    =daca da,se intoarce true,iar daca nu false
+	-isLeaf=metoda care verifica daca un nod din arbore este o frunza
+	       =se verifica daca cei doi copii ai nodului primit ca parametru sunt null
+	       =daca da,inseamna ca e frunza,daca nu,nu
+
+2)Clasa Node-clasa care creeaza un nod pentru arborele de parsare
+	-constructor Node()=construieste un nod avand cei 2 copii null si informatia goala
+	-constructor Node(String)=construieste un nod avand cei 2 copii null si informatia preia stringul dat ca parametru
+	-moveLeft=metoda cu ajutorul careia ne deplasam catre fiul stang al nodului curent(aceasta intoarce fiul stang)
+	-moveRight=metoda cu ajutorul careia ne deplasam catre fiul drept al nodului curent(aceasta intoarce fiul drept)
+	-moveParent=metoda cu ajutorul careia ne deplasam catre nodul parinte al nodului curent(aceasta intoarce nodul parinte)
+	-getSymbol=metoda ce intoarce informatia stocata in nod
+	-setLeft_child=metoda ce seteaza fiul stang al unui nod
+	-setRight_child=metoda ce seteaza fiul drept al unui nod
+	-setParent=metoda ce seteaza nodul parinte al unui nod
+	-setSymbol=metoda ce seteaza informatia dintr-un nod
+
+3)Clasa createExpression-clasa care primeste un String si il separa in operanzi/operatori memorandu-i in ArrayList<String>
+	-constructorul createExpression(String)=instantiaza expresia ce urmeaza a fi prelucrata cu expresia primita ca parametru
+	-metoda Expression()=se ia fiecare caracter in parte si se verifica tipul lui:operator,litera,cifra
+			    =daca gasim o cifra/litera,parcurgem char-urile pana cand gasim un char diferit de tipul 
+			   litera sau cifra,pe parcurs literele/cifrele gasite concatenandu-le intr-un string din vectorul
+			   de stringuri String[]
+			   =daca se intalneste dupa egal unul din caractere "+" "-" si imediat dupa o litera sau o cifra,se
+			   parcurge expresia la fel ca mai sus,de data aceasta primul caracter din stringul format fiind plus sau minus
+			   (operator unar)
+			   =daca intalnim un operator sau o paranteza,o insearam sub forma de string in vectorul de stringuri
+	-metoda getExpr=metoda preia vectorul de stringuri mai sus construit si il parcurge,luand fiecare element   introducandu-l
+		       intr-o noua lista de stringuri,care va fi returnata
+
+4)Clasa InfixToPrefix-clasa ce creeaza o stiva ce contine expresia trimisa ca parametru in forma "postfix"
+	-constructor InfixToPrefix(ArrayList<String>)=metoda ce transforma expresia primita ca parametru
+	din forma "infix" in forma "postfix" prin utilizarea a 2 stive:una intermediara in care se stocheaza
+	operatorii si una finala in care se stocheaza expresia
+						     =se parcurge lista de elemente ale expresiei:daca elementul este 
+	o variabila sau un numar/cifra,se insereaza automat in stiva principala
+						     =daca nu urmam un set de reguli:
+							-daca stiva de operatii este goala sau elemenetul este "(",elementul
+							curent se insereaza in stiva
+							-daca elementul este")" ,cat timp nu ajungem la o paranteza deschis
+	in stiva de operatii,scoatem toate elementele din stiva si le transferam in stiva principala
+							-daca elementul este  pur si simplu un operator,verificam precedenta acestuia
+	cu precedenta operatorului din varful stivei de operatii
+							-daca precedenta elementului curent e mai mica,introducem elementul
+	curent in stiva
+							-daca precedenta este mai mare sau egala,scoatem toate elementele
+	din stiva de operatii si le introducem in stiva principala pana la intalnirea unui op cu precedenta mai mare 
+	sau pana stiva este goala,caz in care ne oprim din scoatere si inseram operatorul curent
+							=la finalul parcurgerii expresiei,daca coada de operatii nu este goala
+	scoatem toate elementele si le inseram in stiva principala
+
+	-metoda getStack()=intoarce stiva principala care contine expresia
+
+5)Clasa ParseTree-clasa care construieste arborele de parsare asociat unei expresii trimise ca parametru
+	-constructorul ParseTree()=initializeaza radacina cu un nod ce contine "="
+	-constructor ParseTree(Stack<String>)=constructorul care construieste arborele de parsare pe baza expresiei de forma
+	"postfix" memorata in stiva
+					     =cazul in care avem de inserat un operator:
+						-incercam sa facem intotdeauna inserarea la dreapta unui nod
+						-in cazul in care nu se poate face inserarea la dreapta,se incearca inserarea
+						la stanga
+						-la fiecare operatie se construieste nodul pe pozitia sa(fiul stang sau drept)
+						si se seteaza parintele noului nod ca fiind nodul curent
+						-ne mutam pe acest nod
+					      =cazul in care avem de inserat o variabila/numar:
+						-se urmeaza aceeasi pasi ca la algoritmul pentru operator,insa,in plus
+						de fiecare data cand facem inserarea,verificam daca nodul curent mai 
+						are copii liberi,iar daca nu ne mutam in sus,pe arbore,cu ajutorul
+						nodurilot parinte,pana cand gasim un nod cu cel putin un fiu liber
+
+OBS:Inserarea in arbore se face atat de usor datorita prelucrarii aduse expresiei,transformand-o intr-o expresie de forma
+"postfix"(forma asemenatoare scrierii poloneze,cu cateva diferente).
+
+6)Clasa OperationsOnTree-clasa care cuprinde operatiile pe care le realizam asupra arborelui:gasirea nivelului maxim,verificarea
+erorilor care apar in expresii,afisarea arborelui,rezolvarea unei expresii si intoarcerea rezultatului,etc
+	-getLevel=metoda care parcurge arborele recursiv si intoarce nivelul maxim gasit al arborelui
+	-printParseExpression=metoda care parcurge arborele pe nivele si afiseaza fiecare nivel in functie de informatia
+			     din acesta
+			     =cat timp nivelul este >= 0(nivel -1 nu exista):
+				-daca avem o frunza sau ne aflam pe primul nivel(acest caz este numai pt a afisa "E" cand avem "=" in nod):
+					-daca in acest nod/frunza avem un operator afisam "E"
+					-daca avem o cifra iar parintele este +,- avem un termen "T"
+					-daca parintele este * avem un factor "F"
+					-daca parintele este > : ? avem un element ternar "N"
+				-in caz contrar:
+					-afisam o paranteza
+					-continuam parcurgerea in stanga nodului curent
+					-afisam elementul din nodul curent
+					-continuam parcurgerea in dreapta nodului curent
+					-inchidem paranteza(s-a parcurs un nivel)
+	-verifyExpression1=metoda care verifica daca ceea ce se afla la stanga egalului este o variabil si nu un numar sau expresie
+			  =la fel cum am spus,daca ceea ce se afla in stanga nu e variabila,afisam eroarea,linia pe care s-a gasit
+			  si coloana
+	-verifyExpression2=metoda care verifica daca variabilele continute de o expresie au fost declarate undeva,in fisier(adica,daca pentru
+                           fiecare din aceste  variabile exista o valoare declarata undeva in fisier)
+			  =metoda primeste un nou parametru fata de cealalta si anume o lista in care sunt stocate variabilele
+			  gasite in fisier pana in acel moment(nu toate variabilele,ci doar cele care au asociata si o valoare numerica)
+			  =se parcurge expresia;daca se gaseste o variabila,aceasta este cauta in lista de variabile mai sus
+			  mentionata
+			  =daca se gaseste,functia returneaza false,iar daca nu inseamna ca nu exista si astfel se genereaza o eroare
+			  care specifica linia si coloana la care s-a gasit variabila nedefinita
+		OBS!!!!! In programul meu,fiecare coloana reprezinta un STRING si nu un char,astfel coloana unde se produce
+		o eroare va fi ,de fapt,pozitia stringului in expresie.
+	-replaceVariable=aceasta metoda inlocuieste toate variabilele din arbore cu valorile lor(apare un nou parametru,o lista de valori
+			in care fiecare valoare corespunde unei variabile)
+			=se parcurge arborele stanga-radacina-dreapta
+			=in nodul curent,verificam daca avem variabila si daca da,o cautam in vectorul de valori si o inlocuim cu valoarea acesteia
+			din lista
+			=in urma acestei metode,arborele se modifica
+	-solveExpression=metoda ce rezolva o expresie(rezultatul final al tuturor operatiilor aritmetice impreauna cu valorile din expresie)
+			=metoda porneste din fiul drept al radacinii,intrucat in acest pas stim ca fiul drept este o variabila iar radaina "="
+			=se inlocuiesc toate variabilele cu litere
+			=se calculeaza expresia
+	-doMath=functie care pentru fiecare operator gasit in arbore,executa operatia aritmetica asociata acestuia
+	       =pentru fiecare operator gasit,se apeleaza recursiv functia pe fiul stang al nodului si se executa operatia
+		aritmetica impreuna cu fiul drept(stim ca fii unui nod care contine o operatie vor fi/sunt valori)
+
+7)Clasa variablesToValues=clasa care creeaza 2 lista:una asociata variabilelor existente in expresie si una care contine
+			  valorile acestor variabile existente in urma operatiilor de atribuire sau in urma calcularii
+			  unor expresii
+	-constructorul variablesToValues=aceasta metoda primeste ca parametrii cele 2 liste mai sus mentionate,radacina
+					arborelui de parsare,numarul liniei,fisierul de scriere al eventualelor erori
+					si lista care contine elementele expresiei sub forma de stringuri
+					=se verifica daca expresia este de fapt o atribuire
+						-se verifica daca elementul din stanga egalului este numar
+							-daca atribuirea este corecta(elementul din stanga este o variabila)
+								-se verifica daca variabila exista deja in lista de variabile,ceea ce ar insemna ca are
+								deja o valoare asociata;in acest caz,se cauta pozitia in lista unde se afla variabila
+								si se suprascrie valoarea de pe aceeasi pozitia din lista de valori cu cea citita acum
+								-daca variabila nu exista,se ajunge la sfarsitul listei si se insereaza la sfarsit si 
+								variabila si valoarea
+						-daca nu este numar,inseamna ca este variabila(se verifica) si se testeaza existenta ei in lista de 
+						variabile si automat valori,pt ca in caz contrar nu se poate face atribuirea
+							-se cauta pozitia variabilei din stanga in vcectorul de variabile
+							-cand a fost gasita,noua variabila se introduce in lista,iar valoarea aferenta acesteia
+							va fi luata de pe pozitia unde se afla variabila din dreapta
+							-se inlocuieste si in arbore noua valoare a variabilei
+							-se face actualizarea si in lista de elemente ale expresiei,aceasta folosindu-se mai departe in alte metode
+	-getVariabile=metoda care returneaza lista de variabile
+	-getValori=metoda ce returneaza lista de valori
+
+8)Clasa verifyCalculate=clasa verifica daca o expresie poate fi calculata si daca da,aceasta o calculeaza,in caz contrar afiseaza un mesaj de eroare
+		-constructorul verifyCalculate=initial,se verifica daca o expresie trece ambele teste de erori;in caz afirmativ se afiseaza OK,in caz contrar
+						se va afisa mesajul de eroare definit in metodele aferente acestora
+					      =daca acest test este trecut se verifica daca expresia este o atribuire,iar daca da se afiseaza
+					      expresia asa cum a fost trimisa ca parametru(aici se motiveaza inlocuirea valorii unei variabile si in lista de elemente
+					      ale expresiei,subliniata mai sus)
+					      =daca nu este o atribuie se calculeaza expresia folosindu-ne de clasa OperationsOnTree,mai exact de metoda  solveExpression(de accea am spus ca in aceasta 
+					      metoda se stie ca expresia poate fi calculata)
+					      =dupa ce rezultatul a fost intors,inseamna ca unei variabile ii corespunde acum o noua valoare,si astfel variabila si valoare
+					      trebuie introduse in listele ,actualizandu-le
+					      =se cauta variabila in lista,iar daca se gaseste se salveaza pozitia si se insereaza noua valoarea pe pozitia gasita in lista de valori
+					      =daca nu se gaaseste,inseamna ca se ajunge la final,iar aici se va insera noua valoare
+
+9)Clasa Main=clasa care ruleaza programul si se foloseste de celelalte clase si metode
+	    =aici se realizeaza citirea din fisier,linie cu linie,se deschid fisierele pentru scriere,se apeleaza metodele pentru prelucrarea expresiei
+	    evaluarea,verificarea ei,rezolvarea expresiei,crearea arborelui de parsare aferent,etc
+	    =fisierul de input este trimis ca parametru in linia de comanda
+
+OBS:Programul se ruleaza cu ajutorul MakeFile-ului atasat in arhiva iar fisierul de intrare se va scrie in continuarea regulii de run
+	EXEMPLU: make run fisier_intrare
+					     
+					      =

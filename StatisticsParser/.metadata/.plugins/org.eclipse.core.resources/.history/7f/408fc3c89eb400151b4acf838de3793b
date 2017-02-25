@@ -1,0 +1,11 @@
+package visualiser;
+
+import java.util.List;
+
+public class FurnitureFactory implements FurnitureObjects{
+
+	Canvas createCanvas(List<EditorElement> pathInEditor){
+		return new Canvas(pathInEditor);
+	}
+
+}

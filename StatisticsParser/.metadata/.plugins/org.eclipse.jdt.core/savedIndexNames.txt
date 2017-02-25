@@ -1,0 +1,9 @@
+INDEX VERSION 1.127+E:\Altele\Examene\ANUL II\SEM I\POO\TEMA 3\.metadata\.plugins\org.eclipse.jdt.core
+2537858594.index
+3396129475.index
+3375460502.index
+4234732623.index
+1069301799.index
+154694851.index
+18953594.index
+4162022189.index

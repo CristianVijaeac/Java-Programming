@@ -1,0 +1,9 @@
+package visualiser;
+
+public interface FurnitureObjects {
+
+	Canvas createCanvas();
+	Menu createMenu();
+	DialogBox createDialogBox();
+	UnknownArea createUnknownArea();
+}

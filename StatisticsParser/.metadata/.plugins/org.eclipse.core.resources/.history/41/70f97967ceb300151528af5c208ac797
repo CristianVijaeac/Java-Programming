@@ -1,0 +1,137 @@
+package visualiser;
+
+import graphics.Renderer;
+import io.Parser;
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+final class Main {
+	private static Renderer renderer;
+
+	public static void main(String[] args) throws IOException {
+		List<Task> tasks = readTasks("logs/alfred");
+		
+		// TODO(5.3): Definiti o mapare intre culorile disponibile in enumeratia Color si culorile
+		// echivalente disponibile in pachetul awt. Puteti utiliza coduri RGB pentru a personaliza
+		// cat mai mult culorile pe care le folositi.
+	
+		HashMap<visualiser.Color,java.awt.Color> mapColorCode=new HashMap<visualiser.Color,java.awt.Color>();
+		
+		mapColorCode.put(visualiser.Color.RED,Color.RED);
+		mapColorCode.put(visualiser.Color.BLUE,Color.BLUE);
+		mapColorCode.put(visualiser.Color.GREEN,Color.GREEN);
+		mapColorCode.put(visualiser.Color.GRAY,Color.GRAY);
+		
+		// TODO(5.2): Completati cu dimensiunile potrivite, implementati drawAll si drawClusters
+		// si decomentati.
+		renderer =new Renderer.Builder()
+	//			.withDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+	//			.withTitle("All data")
+				.circleSize(10)
+				.mapColorCode(mapColorCode)
+				.build();
+		drawAll(tasks);
+		renderer.draw();
+		
+		renderer =new Renderer.Builder()
+		//		.withDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+		//		.withTitle("Clusters")
+				.circleSize(10)
+				.mapColorCode(mapColorCode)
+				.build();
+		drawClusters(tasks);
+		renderer.draw();
+	}
+	
+	private static List<Task> readTasks(String path) throws IOException {
+		File[] filesList = new File(path).listFiles();
+		List<Task> tasks = new ArrayList<>();
+		if (filesList == null) {
+			return tasks;
+		}
+		// TODO(1): Apelati consecutiv functia readFromFile, pentru fiecare fisier in parte.
+		
+		for(int i=0;i<filesList.length;i++){
+			String str=Parser.readFromFile(filesList[i].getPath());
+			tasks.add(new Task(str));
+		}
+		
+		// TODO(2): Adaugati, pe rand, cate un task in lista de task-uri. Task-ul va fi obtinut
+		// prin parsarea log-urilor citite anterior.
+		
+		return tasks;
+	}
+	
+	private static void drawAll(List<Task> tasks) {
+		// TODO(5.4): Implementati drawAll. Functia trebuie sa adauge, pe rand, cate un punct din
+		// log-urile parsate intr-o instanta a clasei Renderer, utilizand valori alese
+		// conventional pentru x si y. Culoarea utilizata va fi cea intoarsa de suprafata din
+		// editor pe care s-a dat click.
+		// Valoarea pentru x va fi intoarsa de functia getXValueFor, definita mai jos.
+		// Valoarea pentru y va fi intoarsa de functia getYValueFor, definita mai jos.
+		
+		for(Task t:tasks){
+			for(int i=0;i<t.getUserEvents().size();i++){
+				UserEvent u=t.getUserEvents().get(i);
+				renderer.addPoint(getXValueFor(u),getYValueFor(u),u.getArea().getVisualisationColor());
+				
+			}
+		}
+	}
+	
+	private static void drawClusters(List<Task> tasks) {
+		// TODO(5.4): Implementati drawClusters. Mai intai, desenati toate punctele din log-uri
+		// utilizand culoarea gri (sau ceva apropiat). Dupa care, desenati pe deasupra, pentru
+		// fiecare cluster determinat punctele clusterului. Aveti grija ca:
+		// 		* fiecare cluster sa fie desenat cu o alta culoare (puteti, de exemplu, utiliza
+		//        culorile definite in Color si sa le alternati circular).
+		//      * algoritmul de obtinere al valorilor x si y sa fie acelasi ca in drawAll -
+		//        folositi functiie getXValueFor si getYValueFor atat in drawAll, cat si in
+		//        drawClusters.
+	
+		for(Task t:tasks){
+			for(int i=0;i<t.getUserEvents().size();i++){
+				UserEvent u=t.getUserEvents().get(i);
+				renderer.addPoint(getXValueFor(u),getYValueFor(u),visualiser.Color.GRAY);
+			}
+			List<ClusterManager.Cluster> cluster=
+					ClusterManager.getInstance().cluster(t.getUserEvents());
+			for(int j=0;j<cluster.size();j++){
+				if(j%2==0){
+					for(int k=0;k<cluster.get(j).getUserEvents().size();k++){
+						UserEvent u=cluster.get(j).getUserEvents().get(k);
+						renderer.addPoint(getXValueFor(u),getYValueFor(u),visualiser.Color.RED);
+					}
+				}else{
+					for(int k=0;k<cluster.get(j).getUserEvents().size();k++){
+						UserEvent u=cluster.get(j).getUserEvents().get(k);
+						renderer.addPoint(getXValueFor(u),getYValueFor(u),visualiser.Color.BLUE);
+					}
+				}
+			}
+		}	
+	}
+	
+	private static int getXValueFor(UserEvent e) {
+		// TODO(5.4): Intoarceti o valoare potrivita pentru x, in functie de evenimentul primit.
+		return e.getTimestamp()*10+10;
+	}
+	
+	private static int getYValueFor(UserEvent e) {
+		// TODO(5.4): Intoarceti o valoare potrivita pentru y, in functie de evenimentul primit.
+		
+		if (e.getArea().getPathInEditor().get(0).getType().contains("card")) return 100;
+		else if (e.getArea().getPathInEditor().get(0).getType().contains("input")) return 120;
+		else if (e.getArea().getPathInEditor().get(0).getType().contains("page")) return 140;
+		else if (e.getArea().getPathInEditor().get(0).getType().contains("menu")) return 160;
+		else if (e.getArea().getPathInEditor().get(0).getType().contains("menu-button")) return 180;
+		else if (e.getArea().getPathInEditor().get(0).getType().contains("icon")) return 200;
+		else if (e.getArea().getPathInEditor().get(0).getType().contains("dialog")) return 220;
+		else return 240;
+
+	}
+}
